@@ -1,0 +1,32 @@
+name: Publish verified Android APK
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: [".github/workflows/publish-verified-android.yml"]
+permissions:
+  contents: write
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Download tested APK and verify integrity
+        run: |
+          set -euo pipefail
+          curl --fail --location --retry 2 -o Cactus-Android.apk https://github.com/SooOoooOOooooooS-sos/Cactus/releases/download/android-v2.0.10/Cactus-Android.apk
+          echo 'bb7858722c3bc8ddfa5e37b2d753478bd579e5f3de4cd79e10af1dc34983e221  Cactus-Android.apk' | sha256sum --check
+          BT="$(find "$ANDROID_HOME/build-tools" -mindepth 1 -maxdepth 1 -type d | sort -V | tail -1)"
+          "$BT/apksigner" verify --verbose Cactus-Android.apk | tee signature-verification.txt
+          grep -Fq 'Verified using v2 scheme (APK Signature Scheme v2): true' signature-verification.txt
+          grep -Fq 'Verified using v3 scheme (APK Signature Scheme v3): true' signature-verification.txt
+      - name: Publish public Android download
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          if gh release view android-v2.0.10 --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo "Release already exists; refusing to overwrite."
+            exit 1
+          fi
+          gh release create android-v2.0.10 Cactus-Android.apk --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --latest=false --title "Cactus Android v2.0.10" --notes "APK identique a la version testee sur emulateur Android 15 : installation, demarrage, connexion M3U et mouvement video verifies. Signatures v2/v3 et SHA-256 verifies. Audio, sous-titres, fournisseur IPTV reel et appareil physique non testes. SHA-256: bb7858722c3bc8ddfa5e37b2d753478bd579e5f3de4cd79e10af1dc34983e221"
