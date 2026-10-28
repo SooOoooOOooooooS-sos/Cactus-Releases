@@ -6,7 +6,7 @@ Ce dépôt public contient les applications Cactus et les fichiers de mise à jo
 | --- | --- |
 | Windows 64 bits | [Cactus 2.0.10 — installateur Windows](https://github.com/SooOoooOOooooooS-sos/Cactus-Releases/releases/download/v2.0.10/Cactus-2.0.10-Windows.exe) |
 | macOS | [Cactus 2.0.10 — application Mac](https://github.com/SooOoooOOooooooS-sos/Cactus-Releases/releases/download/v2.0.10/Cactus-2.0.10-Mac.zip) |
-| Android | [Cactus Android 2.0.10 — APK testé](https://github.com/SooOoooOOooooooS-sos/Cactus-Releases/releases/download/android-v2.0.10/Cactus-Android.apk) |
+| Android | [Cactus Android 2.0.10 — APK testé](https://github.com/SooOoooOOooooooS-sos/Cactus-Releases/releases/download/v2.0.10/Cactus-2.0.10-Android.apk) |
 
 [Toutes les versions](https://github.com/SooOoooOOooooooS-sos/Cactus-Releases/releases)
 
@@ -20,9 +20,11 @@ Ce dépôt public contient les applications Cactus et les fichiers de mise à jo
 
 L'APK lié ci-dessus a été testé sur émulateur Android 15 : installation, démarrage, connexion avec une playlist M3U de test et mouvement vidéo détecté, sans crash détecté. Signatures APK v2/v3 vérifiées.
 
-SHA-256 : `bb7858722c3bc8ddfa5e37b2d753478bd579e5f3de4cd79e10af1dc34983e221`
+SHA-256 : `c7ccbbb0a7b4fc5b603ee7e051e645be3a7927099165a990eff6443119cc4583`
 
-L'audio, les sous-titres, un fournisseur IPTV réel et un téléphone physique n'ont pas été testés pour cet APK. Un autre APK figure dans la release générale v2.0.10 ; son empreinte diffère, donc les résultats ci-dessus ne lui sont pas attribués.
+L'audio, les sous-titres, un fournisseur IPTV réel et un téléphone physique n'ont pas été testés pour cet APK. L'APK signé exact proposé ici a passé le test du 28 octobre 2026 (exécution GitHub Actions 40644826683), à partir de la version du code `209a8e8c2e06f77bb9a56f342d1306ec15e973a7`. La clé de signature est identique à celle de l'ancien APK.
+
+[Ancien APK testé, conservé pour retour en arrière](https://github.com/SooOoooOOooooooS-sos/Cactus-Releases/releases/download/android-v2.0.10/Cactus-Android.apk). Son empreinte est `bb7858722c3bc8ddfa5e37b2d753478bd579e5f3de4cd79e10af1dc34983e221`.
 
 ## Mises à jour et confidentialité
 
