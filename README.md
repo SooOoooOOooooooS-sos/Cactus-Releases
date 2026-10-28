@@ -14,7 +14,19 @@ Ce dépôt public contient les applications Cactus et les fichiers de mise à jo
 
 - **Windows** : télécharger le fichier EXE et l'ouvrir.
 - **Mac** : télécharger et extraire le ZIP, puis déplacer Cactus.app dans Applications. L'application n'utilise pas de certificat Apple Developer ID ; si macOS la bloque, consulter Réglages Système → Confidentialité et sécurité.
-- **Android** : télécharger l'APK sur l'appareil, l'ouvrir et autoriser cette source d'installation si Android le demande.
+- **Android** : suivre les étapes ci-dessous.
+
+### Android : première installation et partage
+
+Le lien Android du tableau peut être envoyé directement à un ami : l'application n'a pas besoin d'être déjà installée et aucun compte GitHub n'est nécessaire.
+
+1. Ouvrir le lien sur le téléphone Android et télécharger `Cactus-2.0.10-Android.apk`.
+2. Ouvrir le fichier depuis les téléchargements du navigateur ou l'application Fichiers.
+3. Si Android le demande, autoriser ce navigateur ou cette application Fichiers à installer des applications provenant de cette source.
+4. Appuyer sur **Installer**, puis **Ouvrir**. Le téléchargement seul n'installe pas l'application.
+5. Dans Cactus, renseigner sa playlist M3U ou ses propres accès IPTV autorisés.
+
+L'APK Android ne s'installe pas sur iPhone ou iPad. Les intitulés des autorisations peuvent varier selon le téléphone.
 
 ## Validation Android
 
