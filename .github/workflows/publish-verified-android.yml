@@ -14,8 +14,8 @@ jobs:
       - name: Download tested APK and verify integrity
         run: |
           set -euo pipefail
-          curl --fail --location --retry 2 -o Cactus-Android.apk https://github.com/SooOoooOOooooooS-sos/Cactus-Releases/releases/download/android-v2.0.10/Cactus-Android.apk
-          echo 'bb7858722c3bc8ddfa5e37b2d753478bd579e5f3de4cd79e10af1dc34983e221  Cactus-Android.apk' | sha256sum --check
+          curl --fail --location --retry 2 -o Cactus-Android.apk https://github.com/SooOoooOOooooooS-sos/Cactus-Releases/releases/download/v2.0.10/Cactus-2.0.10-Android.apk
+          echo 'c7ccbbb0a7b4fc5b603ee7e051e645be3a7927099165a990eff6443119cc4583  Cactus-Android.apk' | sha256sum --check
           BT="$(find "$ANDROID_HOME/build-tools" -mindepth 1 -maxdepth 1 -type d | sort -V | tail -1)"
           "$BT/apksigner" verify --verbose Cactus-Android.apk | tee signature-verification.txt
           grep -Fq 'Verified using v2 scheme (APK Signature Scheme v2): true' signature-verification.txt
