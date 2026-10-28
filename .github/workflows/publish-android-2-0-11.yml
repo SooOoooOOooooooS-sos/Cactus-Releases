@@ -1,0 +1,30 @@
+name: Publish Android 2.0.11
+on:
+  push:
+    branches: [main]
+    paths: [".github/workflows/publish-android-2-0-11.yml"]
+permissions:
+  contents: write
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Retrieve tested signed APK archive
+        run: |
+          set -euo pipefail
+          curl --fail --location --retry 2 -o tested.zip 'https://sdmntprnortheu.oaiusercontent.com/files/00000000-0d94-81f4-b330-115a9c6c5a6e/raw?se=2026-10-28T20%3A28%3A01Z&sp=r&sv=2026-02-06&sr=b&scid=e5104a9c-5c89-4796-a0cf-a6bd311d7a9f&skoid=a4604a88-85e4-4562-b6ab-a5622268de80&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2026-10-28T08%3A16%3A12Z&ske=2026-10-29T08%3A16%3A12Z&sks=b&skv=2026-02-06&sig=qwIZK/wPiQEADhpLrltNx3Bm3eSV7zeXk/V2P0R1zpE%3D'
+          echo 'abc1b13ae9d95cf23c563a177921e8e0ec10f6632e61eefdc7c19f2619057613  tested.zip' | sha256sum --check
+          unzip -j tested.zip Cactus-Android-release.apk
+          mv Cactus-Android-release.apk Cactus-2.0.11-Android.apk
+          BT="$(find "$ANDROID_HOME/build-tools" -mindepth 1 -maxdepth 1 -type d | sort -V | tail -1)"
+          "$BT/apksigner" verify --verbose --print-certs Cactus-2.0.11-Android.apk | tee signature.txt
+          grep -Fq 'Verified using v2 scheme (APK Signature Scheme v2): true' signature.txt
+          grep -Fq 'Verified using v3 scheme (APK Signature Scheme v3): true' signature.txt
+          grep -Fq '76f6f7077fe5befa551ea9c7d92bf877ff60dc1914cafccda0cc88ab334775ee' signature.txt
+          sha256sum Cactus-2.0.11-Android.apk > Cactus-2.0.11-Android.apk.sha256
+      - name: Publish Android release without changing desktop latest
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create android-v2.0.11 Cactus-2.0.11-Android.apk Cactus-2.0.11-Android.apk.sha256 --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --latest=false --title "Cactus Android 2.0.11" --notes "Active le transport HTTP natif pour les playlists et API IPTV. APK signe exact teste sur Android 15 avec serveur sans autorisation CORS : connexion M3U et mouvement video valides. 25 tests automatises reussis. Signatures v2/v3 et continuite de cle verifiees. Le fournisseur de l'utilisateur, l'audio, les sous-titres et un appareil physique ne sont pas valides par ce test."
