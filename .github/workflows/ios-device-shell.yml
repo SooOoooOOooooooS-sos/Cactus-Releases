@@ -1,0 +1,73 @@
+name: Compile unsigned iPhone device runtime
+on:
+  push:
+    branches: ['build/ios-device-shell']
+    paths: ['.github/workflows/ios-device-shell.yml']
+permissions:
+  contents: read
+jobs:
+  device:
+    runs-on: macos-15
+    timeout-minutes: 25
+    steps:
+      - name: Get public Capacitor iOS template
+        uses: actions/checkout@v4
+        with:
+          repository: ionic-team/capacitor
+          ref: 60a677eae8bb27667e8c5c518b38e855c7228968
+          persist-credentials: false
+      - name: Configure device project
+        working-directory: ios-spm-template
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fsSL --retry 2 -o "$RUNNER_TEMP/release.apk" https://github.com/SooOoooOOooooooS-sos/Cactus-Releases/releases/download/android-v2.0.12/Cactus-2.0.12-Android.apk
+          unzip -p "$RUNNER_TEMP/release.apk" assets/public/cactus-app-icon.png > "$RUNNER_TEMP/brand.png"
+          sips -s format jpeg -s formatOptions best -z 1024 1024 "$RUNNER_TEMP/brand.png" --out "$RUNNER_TEMP/brand.jpg" >/dev/null
+          sips -s format png "$RUNNER_TEMP/brand.jpg" --out App/App/Assets.xcassets/AppIcon.appiconset/AppIcon-512@2x.png >/dev/null
+          cp App/App/Assets.xcassets/AppIcon.appiconset/AppIcon-512@2x.png App/App/Assets.xcassets/Splash.imageset/Cactus.png
+          python3 - <<'PY'
+          from pathlib import Path
+          import json
+          def replace(path, old, new):
+              file = Path(path)
+              data = file.read_text()
+              assert old in data, path
+              file.write_text(data.replace(old, new))
+          package = "App/CapApp-SPM/Package.swift"
+          replace(package, 'from: "7.0.0"', 'exact: "7.6.9"')
+          project = "App/App.xcodeproj/project.pbxproj"
+          replace(project, "com.getcapacitor.App", "com.cactus.tv")
+          replace(project, "MARKETING_VERSION = 1.0;", "MARKETING_VERSION = 2.0.13;")
+          plist = "App/App/Info.plist"
+          replace(plist, "My App", "Cactus")
+          replace(plist, "<string>armv7</string>", "<string>arm64</string>")
+          replace(plist, "<string>en</string>", "<string>fr</string>")
+          storyboard = "App/App/Base.lproj/LaunchScreen.storyboard"
+          replace(storyboard, 'contentMode="scaleAspectFill"', 'contentMode="scaleAspectFit"')
+          Path("App/App/Assets.xcassets/Splash.imageset/Contents.json").write_text(json.dumps({
+              "images": [{"idiom": "universal", "filename": "Cactus.png"}],
+              "info": {"author": "xcode", "version": 1}}))
+          PY
+          mkdir -p App/App/public
+          echo '<!doctype html><title>Build fixture</title>' > App/App/public/index.html
+          echo '{"appId":"com.cactus.tv","appName":"Cactus","webDir":"dist","plugins":{"CapacitorHttp":{"enabled":true}},"packageClassList":[]}' > App/App/capacitor.config.json
+          echo '<widget xmlns="http://www.w3.org/ns/widgets" id="com.cactus.tv" version="2.0.13"/>' > App/App/config.xml
+      - name: Build for physical iPhone
+        working-directory: ios-spm-template/App
+        shell: bash
+        run: |
+          set -euo pipefail
+          xcodebuild -project App.xcodeproj -scheme App -configuration Release -sdk iphoneos -destination 'generic/platform=iOS' -derivedDataPath "$RUNNER_TEMP/device" CODE_SIGNING_ALLOWED=NO build
+          app="$RUNNER_TEMP/device/Build/Products/Release-iphoneos/App.app"
+          xcrun vtool -show-build "$app/App"
+          xcrun lipo -verify_arch arm64 "$app/App"
+          test "$(plutil -extract CFBundleIdentifier raw "$app/Info.plist")" = "com.cactus.tv"
+          ditto -c -k --keepParent "$app" "$RUNNER_TEMP/device-runtime.zip"
+      - name: Save device runtime for private assembly
+        uses: actions/upload-artifact@v4
+        with:
+          name: unsigned-device-runtime
+          path: ${{ runner.temp }}/device-runtime.zip
+          if-no-files-found: error
+          retention-days: 1
