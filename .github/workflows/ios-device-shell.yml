@@ -61,7 +61,7 @@ jobs:
           xcodebuild -project App.xcodeproj -scheme App -configuration Release -sdk iphoneos -destination 'generic/platform=iOS' -derivedDataPath "$RUNNER_TEMP/device" CODE_SIGNING_ALLOWED=NO build
           app="$RUNNER_TEMP/device/Build/Products/Release-iphoneos/App.app"
           xcrun vtool -show-build "$app/App"
-          xcrun lipo -verify_arch arm64 "$app/App"
+          xcrun lipo "$app/App" -verify_arch arm64
           test "$(plutil -extract CFBundleIdentifier raw "$app/Info.plist")" = "com.cactus.tv"
           ditto -c -k --keepParent "$app" "$RUNNER_TEMP/device-runtime.zip"
       - name: Save device runtime for private assembly
